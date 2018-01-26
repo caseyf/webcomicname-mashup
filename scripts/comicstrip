@@ -307,7 +307,7 @@ class page(object):
         debug(self.debug, "Saving pages:")
         npfxDigits = int(log(len(self.frames), 10)) + 1
         for fimg in self.frames:
-            fname = "%s%0*d.jpg" % (prefix, npfxDigits, counter)
+            fname = "%s%0*d.png" % (prefix, npfxDigits, counter)
             debug(self.debug, "    Saving:", fname)
             fimg.save(fname)
             counter += 1
