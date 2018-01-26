@@ -37,9 +37,19 @@ I saved a copy of the very first, <strong>minimal version</strong> in case you w
 
 The panels were automatically cropped and I didn't try to do anything more with the results. The borders don't always line up and the titles (or pieces of the titles in the 2nd panel, when the titles are long) still appear.
 
+
+
 There are a couple weird/messed up panels that I haven't excluded.
 
 All in all there are 708 panels.
+
+
+**🌅 the next morning:**
+
+I messed around with extracting the titles. There is a variable in the page, `randomTitlesToo`, that you can use to turn the title swapping on and off. 
+
+My hacky Ruby code for splitting out the titles is here: <a href="https://github.com/caseyf/webcomicname-mashup/blob/master/scripts/ohno_title_splitter.rb">ohno_title_splitter.rb</a>. It looks for consecutive horizontal lines that are more black lines than not. It isn't smart about the wiggly borders so it only did an okay job. Sometimes the title for a panel wasn't correctly removed so 2 titles (the random title and the panel title) are stacked on top of each other in a funny way. Other times, it is cropped in the wrong place.
+
 
 ## ← the source file, index.html
 

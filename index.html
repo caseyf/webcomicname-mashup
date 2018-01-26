@@ -19,16 +19,32 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
         margin: 40px;
       }
 
+      .comic_container {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 900px;
+      }        
+      
+      .title_bar {
+      }
+      
+      .title_bar__image {
+        max-width: 100%;
+        margin-left: -3%;
+      }
+
       .comic {
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-grow: 1;
+        flex-basis: 0;
       }
-
+      
       .comic__panel {
         /* scootch the non-title panels down a bit so that they line up more often */
-        max-width: 300px;
         padding-top: 2%;
+        width: 33.33%
       }
 
       .comic__panel--title {
@@ -64,10 +80,13 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
   
   <body> 
     <!-- the panels -->
-    <div class="comic">
-      <div class="comic__panel comic__panel--title" id="comic_panel_0"></div>
-      <div class="comic__panel" id="comic_panel_1"></div>
-      <div class="comic__panel" id="comic_panel_2"></div>
+    <div class="comic_container">
+      <div class="title_bar" id="title_bar"></div>
+      <div class="comic">
+        <div class="comic__panel comic__panel--title" id="comic_panel_0"></div>
+        <div class="comic__panel" id="comic_panel_1"></div>
+        <div class="comic__panel" id="comic_panel_2"></div>
+      </div>
     </div>
     
     <div class="controls">
@@ -89,20 +108,45 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
 
   <script>
     (function() {
+      // extracting the titles from panels only kind of worked, so it sometimes looks bad
+      var randomTitlesToo = true;
+      
       var imageBase = 'https://s3.amazonaws.com/webcomicname.mashup';
       var blankPanelImage = imageBase + '/strip_81_2.jpg';
       
       // This is dumb but it was one way for me to exclude strips that were not correctly split into panels
       // without messing with links to comics that people have already created
       var goodStrips = [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,131,132,133,134,135,136,137,138,140,141,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,188,189,190,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,238,239,240,241,242,243,244,245];
+      var goodTitles = goodStrips.filter(function(i) { return [9, 17, 147, 232].indexOf(i) < 0 });
+      var goodStripsWithoutTitles = goodStrips.filter(function(i) { return [21, 27, 40, 52, 90, 106, 166, 205, 213, 223].indexOf(i) < 0 });
 
+      function insertRandomTitle() {
+        var stripIndex =  Math.floor(Math.random() * goodTitles.length);
+        var stripNumber = goodTitles[stripIndex];
+        return insertTitle(stripNumber);
+      }
       
+      function insertTitle(stripNumber) {
+        var container = document.getElementById('title_bar');
+        var img = container.getElementsByClassName('title_bar__image')[0];
+        if (!img) {
+          img = document.createElement('img');
+          img.className = 'title_bar__image';
+        }
+
+        img.src = imageBase + '/title_' + stripNumber + '.png';
+        img.setAttribute('data-image-key', stripNumber + '_title');
+        container.appendChild(img);
+        return img;
+      }
+        
       function insertRandomPanel(panelIndex) {
-        var stripIndex =  Math.floor(Math.random() * goodStrips.length);
-        var stripNumber = goodStrips[stripIndex];
+        var strips = randomTitlesToo ? goodStripsWithoutTitles : goodStrips;
+        
+        var stripIndex =  Math.floor(Math.random() * strips.length);
+        var stripNumber = strips[stripIndex];
         return insertPanel(stripNumber, panelIndex);
       }
-
       
       function insertPanel(stripNumber, panelIndex) {
         var container = document.getElementById('comic_panel_' + panelIndex);
@@ -136,9 +180,14 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
         // image URLs look like this: https://s3.amazonaws.com/webcomicname.mashup/strip_181_0.jpg
         // The format is: strip_[STRIP NUMBER]_[PANEL NUMBER].jpg
         var stripImageFile = stripNumber + '_' + panelIndex;
-
-        img.src = imageBase + '/strip_' + stripImageFile + '.jpg';
-        img.setAttribute('data-strip-image', stripImageFile);
+        
+        if (randomTitlesToo) {
+          img.src = imageBase + '/strip_' + stripImageFile + '_without_title.png';
+        } else {
+          img.src = imageBase + '/strip_' + stripImageFile + '.jpg';
+        }
+        
+        img.setAttribute('data-image-key', stripImageFile);
         container.appendChild(img);
         return img;
       };
@@ -149,9 +198,9 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
       function saveState(replace) {
         var keys = [];
 
-        var images = document.querySelectorAll('.comic__image');
+        var images = document.querySelectorAll('.comic__image, .title_bar__image');
         for (var i=0; i<images.length; i++) {
-          keys.push(images[i].getAttribute('data-strip-image'));
+          keys.push(images[i].getAttribute('data-image-key'));
         }
 
         // replaceState the URL with the image names so that we can share links
@@ -170,13 +219,20 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
           // someone is visiting a previously viewed strip. Load the images..
           
           var panels = savedState[1].split(',');
-          for (var i=0; i<3; i++) {
+          for (var i=0; i<panels.length; i++) {
             var parts = panels[i].split('_');
             var stripNumber = parts[0];
-            var panelIndex = parts[1];
-            insertPanel(stripNumber, panelIndex);
+            if (parts[1] == 'title') {
+              insertTitle(stripNumber);
+            } else {
+              var panelIndex = parts[1];
+              insertPanel(stripNumber, panelIndex);
+            }
           }
         } else {
+          if (randomTitlesToo) {
+            insertRandomTitle();
+          }
           insertRandomPanel(0);
           insertRandomPanel(1);
           insertRandomPanel(2);
