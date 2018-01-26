@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<!-- 
+
+Hi! 👋
+
+About this: https://glitch.com/edit/#!/webcomicname-mashup?path=README.md
+A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-webcomicname-mashup
+
+-->
+
 <html>
   <head>
     <title>web comic web name comic web name name web comic</title>
@@ -27,9 +36,10 @@
       }
 
       .comic__image {
-        cursor: pointer;
+        /* fade in/out when we add and remove the 'comic__image--replacing' class */
         transition: .25s ease-in-out;
-
+        
+        cursor: pointer;        
         width: 100%;
         opacity: 1;
       }
@@ -65,106 +75,122 @@
     </div>
     
     <div class="notes">
-      Tap a panel to cheat. 
-      Thank you for the comics, <a href="https://twitter.com/dorrismccomics/status/956575861523787783">@dorrismccomics</a>!
-      <a href="https://glitch.com/edit/#!/webcomicname-mashup?path=README.md:1:0">more...</a>
+      Tap a panel to cheat |
+      Thank you for the comics, <a href="https://twitter.com/dorrismccomics/status/956575861523787783">@dorrismccomics</a>! | 
+      <a href="https://glitch.com/edit/#!/webcomicname-mashup?path=README.md:1:0">about this</a>
     </div>
     
     <!-- glitch links -->
-    <footer id="gWidget"></footer>
-    <p>
-      <a href="http://bazaar.launchpad.net/~kpublicmail/comicstrip/devel/view/head:/comicstrip">comicstrip</a> did all of the hard work
-    </p>
+    <footer id="gWidget"></footer><p><a href="http://bazaar.launchpad.net/~kpublicmail/comicstrip/devel/view/head:/comicstrip">comicstrip</a> did all of the hard work</p>
     <script data-comment="This is the 'remix on glitch' button">!function(){var a=location.hostname.split(".")[0],b=document.getElementsByTagName("head")[0],c=document.createElement("link");c.setAttribute("href","https://widget.glitch.me/style.css"),c.setAttribute("rel","stylesheet"),c.setAttribute("type","text/css"),b.appendChild(c),document.getElementById("gWidget").innerHTML='<p><a href="https://glitch.com/edit/#!/remix/'+a+'"><img alt="Remix on Glitch" src="https://cdn.gomix.com/f3620a78-0ad3-4f81-a271-c8a4faa20f86%2Fremix-button.svg"></a></p><p><a href="https://glitch.com/edit/#!/project/'+a+'">View Code</a></p>'}();</script>
+ 
   </body>
 
-  <script>
-    var imageBase = 'https://s3.amazonaws.com/webcomicname.mashup';
-    var blankPanelImage = 'https://s3.amazonaws.com/webcomicname.mashup/strip_81_2.jpg';
-    
-    // This is dumb but it was one way for me to remove strips that were not correctly split into panels
-    // without messing with links to comics that people have already created
-    var goodStrips = [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,131,132,133,134,135,136,137,138,140,141,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,188,189,190,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,238,239,240,241,242,243,244,245];
 
-    function insertRandomPanel(panelIndex, replaceImage) {
-      var stripIndex =  Math.floor(Math.random() * goodStrips.length);
-      var stripNumber = goodStrips[stripIndex];
-      return insertPanel(stripNumber, panelIndex, replaceImage);
-    }
-
-    function insertPanel(stripNumber, panelIndex, replaceImage) {
-      var container = document.getElementById('comic_panel_' + panelIndex);
-
-      // image URLs look like this: https://s3.amazonaws.com/webcomicname.mashup/strip_181_0.jpg
-      // The format is: strip_[STRIP NUMBER]_[PANEL NUMBER].jpg
-      var stripImageFile = stripNumber + '_' + panelIndex;
-
-      var img = replaceImage;
+    <script>
+    (function() {
+      var imageBase = 'https://s3.amazonaws.com/webcomicname.mashup';
+      var blankPanelImage = imageBase + '/strip_81_2.jpg';
       
-      if (!img) {
-        img = document.createElement('img');
-        img.className = 'comic__image';
+      // This is dumb but it was one way for me to exclude strips that were not correctly split into panels
+      // without messing with links to comics that people have already created
+      var goodStrips = [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,131,132,133,134,135,136,137,138,140,141,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,188,189,190,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,238,239,240,241,242,243,244,245];
+
+      
+      function insertRandomPanel(panelIndex) {
+        var stripIndex =  Math.floor(Math.random() * goodStrips.length);
+        var stripNumber = goodStrips[stripIndex];
+        return insertPanel(stripNumber, panelIndex);
       }
+
       
-      img.onerror = function() { 
-        img.className = 'comic__image';
-        img.src = blankPanelImage; 
-      };
-      
-      // you can click an image to swap it out with a new panel
-      // shuffle CSS classes around to give it a little fade to white transition
-      img.onclick = function() { 
-        img.style.width = img.width + 'px';
-        img.className = 'comic__image comic__image--replacing';
-        img.onload = function() {
-          img.width = 'auto';
+      function insertPanel(stripNumber, panelIndex) {
+        var container = document.getElementById('comic_panel_' + panelIndex);
+
+        var img = container.getElementsByClassName('comic__image')[0];
+        
+        if (!img) {
+          img = document.createElement('img');
           img.className = 'comic__image';
+        }
+        
+        img.onerror = function() { 
+          img.className = 'comic__image';
+          img.src = blankPanelImage; 
         };
+        
+        // you can click an image to swap it out with a new panel
+        // shuffle CSS classes around to give it a little fade to white transition
+        img.onclick = function() { 
+          img.style.width = img.width + 'px';
+          img.className = 'comic__image comic__image--replacing';
+          img.onload = function() {
+            img.width = 'auto';
+            img.className = 'comic__image';
+          };
 
-        insertRandomPanel(panelIndex, img); 
-        saveState();
+          insertRandomPanel(panelIndex); 
+          saveState();
+        };
+        
+        // image URLs look like this: https://s3.amazonaws.com/webcomicname.mashup/strip_181_0.jpg
+        // The format is: strip_[STRIP NUMBER]_[PANEL NUMBER].jpg
+        var stripImageFile = stripNumber + '_' + panelIndex;
+
+        img.src = imageBase + '/strip_' + stripImageFile + '.jpg';
+        img.setAttribute('data-strip-image', stripImageFile);
+        container.appendChild(img);
+        return img;
       };
       
-      img.src = imageBase + '/strip_' + stripImageFile + '.jpg';
-      img.setAttribute('data-strip-image', stripImageFile);
-      container.appendChild(img);
-      return img;
-    };
-    
-    
-    // store the information about the current images in the URL/history so that 
-    // the URL in the address bar will always link to the current comic
-    
-    function saveState() {
-      var keys = [];
-
-      var images = document.querySelectorAll('.comic__image');
-      for (var i=0; i<images.length; i++) {
-        keys.push(images[i].getAttribute('data-strip-image'));
-      }
-
-      // replaceState the URL with the image names so that we can share links
-      history.replaceState({}, null, "?images=" + keys.join(','));
-    };
-
-
-    var savedState = window.location.search.match(/\?images=(.*)/);
-    if (savedState) {
-      // someone is visiting a previously viewed strip. Load the images..
       
-      var panels = savedState[1].split(',');
-      for (var i=0; i<3; i++) {
-        var parts = panels[i].split('_');
-        var stripNumber = parts[0];
-        var panelIndex = parts[1];
-        insertPanel(stripNumber, panelIndex);
-      }
-    } else {
-      insertRandomPanel(0);
-      insertRandomPanel(1);
-      insertRandomPanel(2);
+      // store the information about the current images in the URL/history so that 
+      // the URL in the address bar will always link to the current comic
+      function saveState(replace) {
+        var keys = [];
 
-      saveState();
-    }
+        var images = document.querySelectorAll('.comic__image');
+        for (var i=0; i<images.length; i++) {
+          keys.push(images[i].getAttribute('data-strip-image'));
+        }
+
+        // replaceState the URL with the image names so that we can share links
+        var url = "?images=" + keys.join(',');
+        if (replace) {
+          history.replaceState({}, null, url);
+        } else {
+          history.pushState({}, null, url);
+        }
+      };
+
+
+      function loadStrip() {
+        var savedState = window.location.search.match(/\?images=(.*)/);
+        if (savedState) {
+          // someone is visiting a previously viewed strip. Load the images..
+          
+          var panels = savedState[1].split(',');
+          for (var i=0; i<3; i++) {
+            var parts = panels[i].split('_');
+            var stripNumber = parts[0];
+            var panelIndex = parts[1];
+            insertPanel(stripNumber, panelIndex);
+          }
+        } else {
+          insertRandomPanel(0);
+          insertRandomPanel(1);
+          insertRandomPanel(2);
+
+          saveState(true);
+        }
+      }
+
+      loadStrip();  
+      
+      window.onpopstate = function() {
+        loadStrip();
+      };
+            
+    })();
   </script>
 </html>
