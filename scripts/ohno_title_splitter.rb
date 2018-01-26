@@ -3,11 +3,11 @@ require 'optparse'
 
 class OhnoTitleSplitter
 
-  def initialize(png_file, percent_black_threshold, neighboring_row_threshold)
+  def initialize(png_file, black_threshold, neighboring_rows)
     @canvas = ChunkyPNG::Canvas.from_file(png_file)
     @image = @canvas.to_image
-    @percent_black_threshold = percent_black_threshold
-    @neighboring_row_threshold = neighboring_row_threshold
+    @black_threshold = black_threshold
+    @neighboring_rows = neighboring_rows
   end
 
   def save_without_title(output_filename, offset_adjustment)
@@ -57,8 +57,8 @@ class OhnoTitleSplitter
 
     percent_black_by_row.each_with_index do |val, index|
       p = percent_black_by_row
-      next_3_rows = (0..@neighboring_row_threshold).map {|row| p[index + row] || 0 }
-      if next_3_rows.all? {|black| black > @percent_black_threshold }
+      next_rows = (0..@neighboring_rows).map {|row| p[index + row] || 0 }
+      if next_rows.inject(0) {|sum, v| sum + v} >= @black_threshold
         horizontal_lines << index
       end
     end
@@ -76,8 +76,8 @@ if __FILE__ == $0
   output_title = nil
 
   offset_adjustment = 3
-  percent_black_threshold = 0.40
-  neighboring_row_threshold = 3
+  black_threshold = 2.00
+  neighboring_rows = 10
 
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: ohno_title_splitter.rb [options]"
@@ -93,11 +93,11 @@ if __FILE__ == $0
     exit -1
   end
 
-  splitter = OhnoTitleSplitter.new(input_file, percent_black_threshold, neighboring_row_threshold)
-  if output_title
+  splitter = OhnoTitleSplitter.new(input_file, black_threshold, neighboring_rows)
+  if output_file
     splitter.save_without_title(output_file, offset_adjustment)
   end
-  if output_file
+  if output_title
     splitter.save_title_only(output_title, offset_adjustment)
   end
 end
