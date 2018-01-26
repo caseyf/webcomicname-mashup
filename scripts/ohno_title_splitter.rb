@@ -3,27 +3,33 @@ require 'optparse'
 
 class OhnoTitleSplitter
 
-  def initialize(png_file, black_threshold, neighboring_rows)
+  attr_accessor :black_threshold, :neighboring_rows, :allowed_offset_range
+
+  def initialize(png_file, black_threshold, neighboring_rows, allowed_offset_range)
     @canvas = ChunkyPNG::Canvas.from_file(png_file)
     @image = @canvas.to_image
     @black_threshold = black_threshold
     @neighboring_rows = neighboring_rows
+    @allowed_offset_range = allowed_offset_range
   end
 
   def save_without_title(output_filename, offset_adjustment)
-    puts "Cropping title at #{title_offset}px and writing to #{output_filename}..."
-
-    offset = title_offset - offset_adjustment
-    cropped = @canvas.crop(0, offset, @image.width, @image.height - offset)
-    cropped.save(output_filename)
+    if @allowed_offset_range.include?(title_offset)
+      puts "Writing image from offset #{title_offset}px to #{output_filename}..."
+      offset = title_offset - offset_adjustment
+      cropped = @canvas.crop(0, offset, @image.width, @image.height - offset)
+      cropped.save(output_filename)
+    end
   end
 
   def save_title_only(output_filename, offset_adjustment)
-    puts "Writing title from 0px-#{title_offset}px to #{output_filename}..."
+    if @allowed_offset_range.include?(title_offset)
+      puts "Writing title from 0px-#{title_offset}px to #{output_filename}..."
 
-    offset = title_offset - offset_adjustment
-    cropped = @canvas.crop(0, 0, @image.width, offset)
-    cropped.save(output_filename)
+      offset = title_offset - offset_adjustment
+      cropped = @canvas.crop(0, 0, @image.width, offset)
+      cropped.save(output_filename)
+    end
   end
 
   def title_offset
@@ -75,9 +81,9 @@ if __FILE__ == $0
   output_file = nil
   output_title = nil
 
-  offset_adjustment = 3
+  offset_adjustment = 0
   black_threshold = 2.00
-  neighboring_rows = 10
+  neighboring_rows = 5
 
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: ohno_title_splitter.rb [options]"
@@ -93,12 +99,13 @@ if __FILE__ == $0
     exit -1
   end
 
-  splitter = OhnoTitleSplitter.new(input_file, black_threshold, neighboring_rows)
+  splitter = OhnoTitleSplitter.new(input_file, black_threshold, neighboring_rows, 25..45)
   if output_file
     splitter.save_without_title(output_file, offset_adjustment)
   end
   if output_title
     splitter.save_title_only(output_title, offset_adjustment)
   end
+
 end
 
