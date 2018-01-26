@@ -21,15 +21,16 @@ import sys
 import inspect
 import zipfile
 import os
-import Image
+from PIL import Image
 import fnmatch
 
 from math import log
-from ImageFile import Parser
-from ImageEnhance import Contrast
-from ImageFilter import BLUR
+from PIL import ImageFile
+from PIL import ImageEnhance
+from PIL.ImageEnhance import Contrast
+from PIL import ImageFilter
+from PIL import ImageOps
 from optparse import OptionParser
-from ImageOps import autocontrast
 
 _version = "0.1"
 
@@ -258,7 +259,7 @@ class page(object):
 
     def _prepare(self):
         bwimg = self.orig.convert("L")
-        return Contrast(autocontrast(bwimg, 10)).enhance(contrast).point(self._digitize)
+        return Contrast(ImageOps.autocontrast(bwimg, 10)).enhance(contrast).point(self._digitize)
 
     keys = ["startRow", "lignore", "rignore", "contents", "infile", "pgNum", "quiet",
             "debug", "fwidth", "fheight"]
