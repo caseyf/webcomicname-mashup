@@ -13,10 +13,19 @@ I saved a copy of the very first, <strong>minimal version</strong> in case you w
 
 
 
+## credits
+
+* comics by Alex Norris! <a href="http://webcomicname.com/">webcomicname.com</a>
+* Panel splitting: `comicstrip` utility by  David Koo <a href="https://github.com/caseyf/webcomicname-mashup/blob/master/scripts/comicstrip">Ruby source code</a>
+* Separating titles from panels: my own hack <a href="https://github.com/caseyf/webcomicname-mashup/blob/master/scripts/ohno_title_splitter.rb">Python source code</a>
+* Save feature: `dom-to-image` by Anatolii Saienko <a href="https://github.com/tsayen/dom-to-image">JS source code</a>
+* Save icon by Gregor Cresnar from the Noun Project
+
+
 # how?
 
 1. I snarfed the comics from webcomicname.com by using a $3 "Tumblelog Picture Downloader" app from the Mac App Store. There are several Tumblr picture download projects on Github if you'd rather try those.
-2. Split the panels into 3 images with this Python code: <a href="http://bazaar.launchpad.net/~kpublicmail/comicstrip/devel/view/head:/comicstrip">comicstrip</a>.  The <a href="https://code.launchpad.net/~kpublicmail">original author</a> of this did all of the hard work 👏 `comicstrip` did a pretty great job and got all 3 panels from most of them. This shell script processes each one and names them with consecutive numbers. It could be improved by having it reuse a strip number if the correct number of panels are not found. That way there aren't gaps.
+2. Split the panels into 3 images with <a href="http://bazaar.launchpad.net/~kpublicmail/comicstrip/devel/view/head:/comicstrip">comicstrip</a>.  The <a href="https://code.launchpad.net/~kpublicmail">original author</a> of this did all of the hard work 👏 `comicstrip` did a pretty great job and got all 3 panels from most of them. This shell script processes each one and names them with consecutive numbers. It could be improved by having it reuse a strip number if the correct number of panels are not found. That way there aren't gaps.
 
     ```
     ls -1 tumblr-downloader-images/*.jpg | nl | while read line; do
@@ -31,13 +40,13 @@ I saved a copy of the very first, <strong>minimal version</strong> in case you w
   
   3. Now the filenames are all like `strip_[STRIP NUMBER]_[PANEL NUMBER].jpg` so  we can use Javascript to come up with 3 random panel image links and insert them into a page.   I dumped all of the images into Amazon S3 because it was easy. There is <a href="https://support.glitch.com/t/easier-way-to-reference-assets/394">probably a way</a> to store them in Glitch and still get predictable URLs.
 
-4. The source for the rest is all here :) The <a href="https://glitch.com/edit/#!/remix/minimalist-webcomicname-mashup">minimal version</a> picks 3 random numbers between 1 and the # of panels, uses that to create the URL, and adds an IMG to the page for each one.
+4. The source for the rest is all here :) The <a href="https://glitch.com/edit/#!/remix/minimalist-webcomicname-mashup">minimal version</a> picks 3 random numbers between 1 and the # of panels, uses that to create the URL, and adds an IMG to the page for each one.  The main difference between this version and the minimal version is that this version adds unique URLs for each mashup  and back button support so that you can more easily share, etc.
 
 # oddities
 
 The panels were automatically cropped and I didn't try to do anything more with the results. The borders don't always line up and the titles (or pieces of the titles in the 2nd panel, when the titles are long) still appear.
 
-
+There is some unnecessary flashing going on when loading the page the first time a after hitting "make me a new comic" (that link just loads the page again).
 
 There are a couple weird/messed up panels that I haven't excluded.
 
@@ -50,7 +59,11 @@ I messed around with extracting the titles. There is a variable in the page, `ra
 
 My hacky Ruby code for splitting out the titles is here: <a href="https://github.com/caseyf/webcomicname-mashup/blob/master/scripts/ohno_title_splitter.rb">ohno_title_splitter.rb</a>. It looks for consecutive horizontal lines that are more black lines than not. It isn't smart about the wiggly borders so it only did an okay job. Sometimes the title for a panel wasn't correctly removed so 2 titles (the random title and the panel title) are stacked on top of each other in a funny way. Other times, it is cropped in the wrong place.
 
+Maybe looking at rows of pixels and splitting once we come to the 2nd completely white gutter (first is before the title, 2nd is after) would have worked better but oh well!
+
+I used `dom-to-image` to add a save button. It only supports Chrome and Firefox.
 
 ## ← the source file, index.html
 
-I crammed the HTML, CSS and Javascript into one page because Glitch has a request limit (makes sense, since this is all free!) and I hoped that it would help with "529 too many requests" when I first tweeted about this :/
+I crammed the HTML, CSS and Javascript into one page.
+
