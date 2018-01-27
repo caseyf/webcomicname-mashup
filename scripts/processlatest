@@ -3,9 +3,9 @@
 stripdb="stripnumbers.txt"
 
 echo "Looking for a new strip..."
-newstrip=`comm -13 <(cat stripnumbers.txt | cut -f2 -d" " | sort) <(./latest_webcomicname_comics.rb|sort) | head -n1`
+latest=`comm -13 <(cat stripnumbers.txt | cut -f2 -d" " | sort) <(./latest_webcomicname_comics.rb|sort) | head -n1`
 
-if [ -z "$newstrip" ]; then
+if [ -z "$latest" ]; then
   echo "No new strips. Oh no!"
   exit -1
 fi
@@ -15,7 +15,6 @@ stripnumber=$((currentstrip + 1))
 echo "The next strip will be number $stripnumber"
 stripfile=strip_$stripnumber.png
 
-latest=`./latest_webcomicname_comics.rb | head -n1`
 echo "Downloading the latest strip from $latest"
 curl --silent -o $stripfile $latest
 
