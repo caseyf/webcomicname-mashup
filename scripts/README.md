@@ -1,6 +1,6 @@
 `processlatest` does the work of looking for new webcomicname.com comics and processing them
 
-1. parse the RSS feed and grab all of the comic URLs
+1. use `latest_webcomicname_comics.rb` to parse the RSS feed and grab all of the comic URLs
 2. compare with a saved file (`stripnumbers.txt`) to see if there is anything new
 3. if there is something new, download it and continue
 4. split into panels with `comicstrip`
