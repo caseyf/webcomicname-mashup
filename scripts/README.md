@@ -1,7 +1,7 @@
 ## contents:
 
-* 'ohno_title_splitter.rb': Ruby code to detect the location of a title in an "oh no!" style comic and extract it and/or remove it
-* 'comicstrip':  comic panel splitting Python code by David Koo
+* `ohno_title_splitter.rb`: Ruby code to detect the location of a title in an "oh no!" style comic and extract it and/or remove it
+* `comicstrip`:  comic panel splitting Python code by David Koo
 * `latest_webcomicname_comics.rb`: prints out a list of the latest high resolution comic images from webcomicname.com
 
 
