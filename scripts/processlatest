@@ -1,0 +1,52 @@
+#!/bin/bash
+
+stripdb="stripnumbers.txt"
+
+echo "Looking for a new strip..."
+newstrip=`comm -13 <(cat stripnumbers.txt | cut -f2 -d" " | sort) <(./latest_webcomicname_comics.rb|sort) | head -n1`
+
+if [ -z "$newstrip" ]; then
+  echo "No new strips. Oh no!"
+  exit -1
+fi
+
+currentstrip=`sort -n $stripdb | tail -n1 | cut -f1 -d" "`
+stripnumber=$((currentstrip + 1))
+echo "The next strip will be number $stripnumber"
+stripfile=strip_$stripnumber.png
+
+latest=`./latest_webcomicname_comics.rb | head -n1`
+echo "Downloading the latest strip from $latest"
+curl --silent -o $stripfile $latest
+
+echo "Splitting into panels..."
+./comicstrip -q -f ${stripfile} --min-width=160 --min-height=160 --prefix=strip_${stripnumber}_ > /dev/null
+
+echo "Extracting title..."
+./ohno_title_splitter.rb --input-file ${stripfile} --output-title title_${stripnumber}.png
+
+# remove the title from the panels
+for panel in `seq 0 2`; do
+  ./ohno_title_splitter.rb --input-file strip_${stripnumber}_${panel}.png --output-file strip_${stripnumber}_${panel}_without_title.png
+done    
+
+echo "Updating stripnumbers.txt..."
+echo "$stripnumber $latest" >> stripnumbers.txt
+
+echo "Generating stripnumbers.json..."
+numbers=`sort -n stripnumbers.txt | awk '{print $1","}' | tr -d '\n' | sed '$ s/.$//'`
+echo "{stripnumbers:[$numbers]}" > stripnumbers.json
+
+echo "Storing in AWS..."
+
+aws s3 cp stripnumbers.json s3://webcomicname.mashup/ --acl public-read
+aws s3 cp title_${stripnumber}.png s3://webcomicname.mashup/ --acl public-read
+for file in strip_${stripnumber}*.png; do
+  aws s3 cp $file s3://webcomicname.mashup/  --acl public-read
+done
+
+
+# show the results!
+echo -e "\n\nDone!\n====="
+ls -1 title_$stripnumber*
+ls -1 strip_$stripnumber*
