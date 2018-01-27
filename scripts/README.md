@@ -1,4 +1,4 @@
-`processlatest` does the work of looking for new webcomicname.com comics and processing them
+`processlatest` uses this pile of scripts to look for new webcomicname.com comics and process them
 
 1. use `latest_webcomicname_comics.rb` to parse the RSS feed and grab all of the comic URLs
 2. compare with a saved file (`stripnumbers.txt`) to see if there is anything new
