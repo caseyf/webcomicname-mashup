@@ -1,9 +1,11 @@
-'ohno_title_splitter.rb': Ruby code to detect the location of a title in an "oh no!" style comic and extract it and/or remove it
-'comicstrip':  comic panel splitting Python code by David Koo
-`latest_webcomicname_comics.rb`: prints out a list of the latest high resolution comic images from webcomicname.com
+## contents:
+
+* 'ohno_title_splitter.rb': Ruby code to detect the location of a title in an "oh no!" style comic and extract it and/or remove it
+* 'comicstrip':  comic panel splitting Python code by David Koo
+* `latest_webcomicname_comics.rb`: prints out a list of the latest high resolution comic images from webcomicname.com
 
 
-`processlatest`: uses this pile of scripts to look for new webcomicname.com comics and process them
+* `processlatest`: uses this pile of scripts to look for new webcomicname.com comics and process them
 
 1. use `latest_webcomicname_comics.rb` to parse the RSS feed and grab all of the comic URLs
 2. compare with a saved file (`stripnumbers.txt`) to see if there is anything new
