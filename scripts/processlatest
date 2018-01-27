@@ -33,7 +33,7 @@ echo "Updating stripnumbers.txt..."
 echo "$stripnumber $latest" >> stripnumbers.txt
 
 echo "Generating stripnumbers.json..."
-numbers=`sort -n stripnumbers.txt | awk '{print $1","}' | tr -d '\n' | sed '$ s/.$//'`
+numbers=`sort -n stripnumbers.txt | grep -v IGNORE | awk '{print $1","}' | tr -d '\n' | sed '$ s/.$//'`
 echo "{stripnumbers:[$numbers]}" > stripnumbers.json
 
 echo "Storing in AWS..."
