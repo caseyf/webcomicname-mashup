@@ -7,6 +7,7 @@
 
 * `processlatest`: uses this pile of scripts to look for new webcomicname.com comics and process them
 
+## what processlatest does:
 1. use `latest_webcomicname_comics.rb` to parse the RSS feed and grab all of the comic URLs
 2. compare with a saved file (`stripnumbers.txt`) to see if there is anything new
 3. if there is something new, download it and continue
