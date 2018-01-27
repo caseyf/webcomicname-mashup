@@ -16,8 +16,8 @@ I saved a copy of the very first, <strong>minimal version</strong> in case you w
 ## credits
 
 * comics by Alex Norris! <a href="http://webcomicname.com/">webcomicname.com</a>
-* Panel splitting: `comicstrip` utility by  David Koo <a href="https://github.com/caseyf/webcomicname-mashup/blob/master/scripts/comicstrip">Ruby source code</a>
-* Separating titles from panels: my own hack <a href="https://github.com/caseyf/webcomicname-mashup/blob/master/scripts/ohno_title_splitter.rb">Python source code</a>
+* Panel splitting: `comicstrip` utility by  David Koo <a href="https://github.com/caseyf/webcomicname-mashup/blob/master/scripts/comicstrip">Python source code</a>
+* Separating titles from panels: my own hack <a href="https://github.com/caseyf/webcomicname-mashup/blob/master/scripts/ohno_title_splitter.rb">Ruby source code</a>
 * Save feature: `dom-to-image` by Anatolii Saienko <a href="https://github.com/tsayen/dom-to-image">JS source code</a>
 * Save icon by Gregor Cresnar from the Noun Project
 
