@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'chunky_png'
 require 'optparse'
 
@@ -19,6 +21,8 @@ class OhnoTitleSplitter
       offset = title_offset - offset_adjustment
       cropped = @canvas.crop(0, offset, @image.width, @image.height - offset)
       cropped.save(output_filename)
+    else
+      @canvas.save(output_filename)
     end
   end
 
@@ -69,7 +73,7 @@ class OhnoTitleSplitter
       end
     end
 
-    horizontal_lines.first || 0
+    horizontal_lines.find {|l| @allowed_offset_range.include?(l) }
   end
 
 
@@ -81,8 +85,9 @@ if __FILE__ == $0
   output_file = nil
   output_title = nil
 
-  offset_adjustment = 0
-  black_threshold = 2.00
+  # these are set up for 1280px oh no! comics
+  offset_adjustment = 5
+  black_threshold = 1.50
   neighboring_rows = 5
 
   parser = OptionParser.new do |opts|
@@ -99,7 +104,7 @@ if __FILE__ == $0
     exit -1
   end
 
-  splitter = OhnoTitleSplitter.new(input_file, black_threshold, neighboring_rows, 25..45)
+  splitter = OhnoTitleSplitter.new(input_file, black_threshold, neighboring_rows, 25..100)
   if output_file
     splitter.save_without_title(output_file, offset_adjustment)
   end
