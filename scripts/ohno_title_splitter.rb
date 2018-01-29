@@ -44,6 +44,33 @@ class OhnoTitleSplitter
     r < 40 && g < 40 && b < 40
   end
 
+  # as a percentage of the width
+  def percentage_trailing_space(offset_top, offset_bottom)
+    last_nonwhite_column = nil
+
+    width = @image.dimension.width
+    height = @image.dimension.height
+
+    (0..(width - 1)).each do |x|
+      (offset_top..(height - 1 - offset_bottom)).each do |y|
+        pixel = @image[x,y]
+        r = ChunkyPNG::Color.r(pixel)
+        g = ChunkyPNG::Color.g(pixel)
+        b = ChunkyPNG::Color.b(pixel)
+
+        if [r, g, b] != [255, 255, 255]
+          last_nonwhite_column = x
+        end
+      end
+    end
+
+    if last_nonwhite_column
+      last_nonwhite_column/width.to_f
+    else
+      0
+    end
+  end
+
   def find_title_offset
     horizontal_lines = []
     percent_black_by_row = []
