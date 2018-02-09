@@ -4,7 +4,7 @@
 Hi! 👋
 
 About this: https://glitch.com/edit/#!/webcomicname-mashup?path=README.md
-A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-webcomicname-mashup
+A minimal version with waaaay less code: https://glitch.com/edit/#!/minimalist-webcomicname-mashup
 
 -->
 
@@ -25,9 +25,10 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
         margin-left: auto;
         margin-right: auto;
         width: 90vw;
+        max-width: 900px;
 
         /* don't grow too large on wide screens, the original 3 panel images are only 1000px or something */
-        max-width: 900px;
+        background-color: white;
       }        
 
       .comic_container--saving {
@@ -123,7 +124,7 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
     
     <div class="controls">
       ✨ <a href="?" id="new_comic_control" class="controls__refresh">make a random comic</a> or 
-      <a href="?latest=1" id="latest_comic_control" class="controls__refresh">include the latest</a>
+      <a href="?latest=1" id="latest_comic_control" class="controls__refresh">mash up the latest</a>
     </div>
     
     <div class="notes">
@@ -141,20 +142,40 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
   <script>
     (function() {
       var browserSupportsSave = window.chrome || /Firefox/.test(navigator.userAgent);
-      
-      // extracting the titles from panels only kind of worked, so it sometimes looks bad
+
+      // true = choose a random title from all strips, false = choose a title from the titles of the 3 shown panels
+      var totallyRandomTitle = false;
+
+      // disable title replacement altogether
       var replaceTitlesToo = true;
       
       var imageBase = 'https://s3.amazonaws.com/webcomicname.mashup';
+      var goodStripUrl = 'https://s3.amazonaws.com/webcomicname.mashup/stripnumbers.json';
       var blankPanelImage = imageBase + '/strip_81_2.jpg';
-      var cacheVersion = 2;
+      var cacheVersion = 5;
       
       // This is dumb but it was one way for me to exclude strips that were not correctly split into panels
       // without messing with links to comics that people have already created
-      var goodStrips = [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,131,132,133,134,135,136,137,138,140,141,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,188,189,190,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,238,239,240,241,242,243,244,245];
-      var goodTitles = goodStrips.filter(function(i) { return [9, 17, 94, 147, 232].indexOf(i) < 0 });
-
+      var goodStrips = null;
+      var brokenTitles = [9, 17, 18, 20, 47, 48, 58, 68, 92, 93, 94, 109, 126, 136, 147, 148, 232];
+      
+      function retrieveGoodStrips(callback) {
+        console.log(goodStripUrl);
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', goodStripUrl, true);
+        xhr.overrideMimeType("application/json");
+        xhr.onreadystatechange = function(x) {
+          if (xhr.readyState == 4) {
+            goodStrips = JSON.parse(xhr.responseText)['stripnumbers'];
+            callback();
+          }
+        }
+        xhr.send(null);
+      }
+      
       function insertRandomTitle() {
+        var goodTitles = goodStrips.filter(function(i) { return brokenTitles.indexOf(i) < 0 });
+
         var stripIndex =  Math.floor(Math.random() * goodTitles.length);
         var stripNumber = goodTitles[stripIndex];
         return insertTitle(stripNumber);
@@ -168,7 +189,7 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
           img.className = 'title_bar__image';
         }
 
-        img.crossOrigin = 'anonymous';
+        img.crossOrigin = 'anonymous'; // crossOrigin stuff for the save button
         img.src = imageBase + '/title_' + stripNumber + '.png?v=' + cacheVersion;
         img.setAttribute('data-image-key', stripNumber + '_title');
         
@@ -188,7 +209,8 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
         
         var stripIndex =  Math.floor(Math.random() * strips.length);
         var stripNumber = strips[stripIndex];
-        return insertPanel(stripNumber, panelIndex);
+        insertPanel(stripNumber, panelIndex);
+        return stripNumber;
       }
       
       
@@ -225,7 +247,7 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
         // The format is: strip_[STRIP NUMBER]_[PANEL NUMBER].jpg
         var stripImageFile = stripNumber + '_' + panelIndex;
         
-        img.crossOrigin = 'anonymous';
+        img.crossOrigin = 'anonymous'; // crossOrigin stuff for the save button
         if (replaceTitlesToo) {
           img.src = imageBase + '/strip_' + stripImageFile + '_without_title.png?v=' + cacheVersion;
         } else {
@@ -259,6 +281,13 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
 
 
       function loadStrip() {
+        if (!goodStrips) {
+          retrieveGoodStrips(function() {
+            loadStrip();
+          });
+          return;
+        }
+        
         var panelCount = document.getElementsByClassName('comic__panel').length;
         var filledPanels = [];
         var titleInserted = false;
@@ -279,7 +308,7 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
               titleInserted = true;
             } else {
               var panelIndex = parseInt(parts[1], 10);
-              filledPanels.push(panelIndex);
+              filledPanels[panelIndex] = stripNumber;
               insertPanel(stripNumber, panelIndex);
             }
           }
@@ -294,17 +323,27 @@ A minimal version with a lot less code: https://glitch.com/edit/#!/minimalist-we
           }
           
           var randomPanel = Math.floor(Math.random() * panelCount);
-          filledPanels.push(randomPanel);
+          filledPanels[randomPanel] = latestStrip;
           insertPanel(latestStrip, randomPanel);
         }
         
-        if (!titleInserted && replaceTitlesToo) {
-            insertRandomTitle();
+        for (i=0; i<panelCount; i++) {
+          if (filledPanels[i] == null) {
+            filledPanels[i] = insertRandomPanel(i);
+          }
         }
 
-        for (i=0; i<panelCount; i++) {
-          if (filledPanels.indexOf(i) < 0) {
-            insertRandomPanel(i);
+        if (!titleInserted && replaceTitlesToo) {
+          if (totallyRandomTitle) {
+            insertRandomTitle();
+          } else {
+            var randomTitle = Math.floor(Math.random() * panelCount);
+            var randomTitleNumber = filledPanels[randomTitle];
+            if (brokenTitles.indexOf(randomTitleNumber) < 0) {
+              insertTitle(randomTitleNumber);
+            } else {
+              insertRandomTitle();
+            }
           }
         }
 
