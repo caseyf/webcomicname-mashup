@@ -26,7 +26,8 @@ echo "Extracting title..."
 
 # remove the title from the panels
 for panel in `seq 0 2`; do
-  ./ohno_title_splitter.rb --input-file strip_${stripnumber}_${panel}.png --output-file strip_${stripnumber}_${panel}_without_title.png
+  cp strip_${stripnumber}_${panel}.png strip_${stripnumber}_${panel}_without_title.png
+  ./ohno_title_splitter.rb  --panels 3 --panel-index $((panel + 1)) --input-title title_${stripnumber}.png --input-file strip_${stripnumber}_${panel}.png --output-file strip_${stripnumber}_${panel}_without_title.png
 done    
 
 echo "Updating stripnumbers.txt..."

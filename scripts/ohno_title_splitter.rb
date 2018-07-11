@@ -45,15 +45,18 @@ class OhnoTitleSplitter
   end
 
   # as a percentage of the width
-  def percentage_trailing_space(offset_top, offset_bottom)
+  def percentage_trailing_space(title_file, offset_top, offset_bottom)
+    canvas = ChunkyPNG::Canvas.from_file(title_file)
+    title_image = canvas.to_image
+
     last_nonwhite_column = nil
 
-    width = @image.dimension.width
-    height = @image.dimension.height
+    width = title_image.dimension.width
+    height = title_image.dimension.height
 
     (0..(width - 1)).each do |x|
       (offset_top..(height - 1 - offset_bottom)).each do |y|
-        pixel = @image[x,y]
+        pixel = title_image[x,y]
         r = ChunkyPNG::Color.r(pixel)
         g = ChunkyPNG::Color.g(pixel)
         b = ChunkyPNG::Color.b(pixel)
@@ -109,13 +112,19 @@ end
 
 if __FILE__ == $0
   input_file = nil
+  input_title = nil
   output_file = nil
   output_title = nil
+
+  panels = nil
+  panel_index = nil
 
   # these are set up for 1280px oh no! comics
   offset_adjustment = 5
   black_threshold = 1.50
   neighboring_rows = 5
+
+  measure_trailing_space = false
 
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: ohno_title_splitter.rb [options]"
@@ -123,6 +132,10 @@ if __FILE__ == $0
     opts.on("--input-file input_file", "PNG input file") {|f| input_file = f  }
     opts.on("--output-title title_file", "Output file name for comic title") {|f| output_title = f }
     opts.on("--output-file comic_file", "Output file name for comic with title removed")  {|f| output_file = f }
+ 
+    opts.on("--input-title title_file", "PNG input file") {|f| input_title = f  }
+    opts.on("--panels count", "Total number of panels")  {|i| panels = i.to_i }
+    opts.on("--panel-index index", "This panel #, starting at 1")  {|i| panel_index = i.to_i }
   end
   parser.parse!
 
@@ -132,12 +145,21 @@ if __FILE__ == $0
   end
 
   splitter = OhnoTitleSplitter.new(input_file, black_threshold, neighboring_rows, 25..100)
-  if output_file
-    splitter.save_without_title(output_file, offset_adjustment)
-  end
-  if output_title
-    splitter.save_title_only(output_title, offset_adjustment)
+
+  title_not_present = if panels && panel_index && input_title
+    pct = splitter.percentage_trailing_space(input_title, 5, 5)
+    pct < (panel_index - 1).to_f/panels
   end
 
+  if title_not_present
+    puts "Skipping title removal, title did not overlap into panel #{panel_index}"
+  else  
+    if output_title
+      splitter.save_title_only(output_title, offset_adjustment)
+    end
+    if output_file
+      splitter.save_without_title(output_file, offset_adjustment)
+    end
+  end
 end
 
