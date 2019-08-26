@@ -4,14 +4,10 @@ require 'rss'
 require 'open-uri'
 require 'nokogiri'
 
-url = 'http://webcomicname.com/rss'
+url = 'https://webcomicname.com'
 
-open(url) do |rss|
-  feed = RSS::Parser.parse(rss)
-  feed.items.each do |item|
-    html = Nokogiri::HTML.fragment(item.description)
-    if (img = html/'img')
-      puts img.attribute('src').to_s.gsub(/_(\d+).(jpg|png)$/, '_1280.\2')
-    end
-  end
+html = Nokogiri::HTML(open(url).read)
+(html/'.tmblr-full img').each do |img|
+  puts img.attribute('src')
 end
+
